@@ -2,10 +2,12 @@ package abstract
 
 import (
 	_ "embed"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 var (
@@ -36,6 +38,8 @@ func (g *AbstractArt) Draw(screen *ebiten.Image) {
 	}
 
 	screen.DrawRectShader(w, h, shader, op)
+
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS()))
 }
 
 func (g *AbstractArt) Layout(_, _ int) (int, int) {
