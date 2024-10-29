@@ -1,2 +1,6 @@
 manu
 cmd/manu
+
+# nix stuff
+.direnv
+.envrc
