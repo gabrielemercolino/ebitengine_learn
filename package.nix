@@ -3,6 +3,8 @@
   libGL,
   pkg-config,
   xorg,
+
+  makeWrapper,
 }:
 
 buildGoModule {
@@ -28,7 +30,13 @@ buildGoModule {
 
   nativeBuildInputs = [
     pkg-config
+    makeWrapper
   ];
+
+  postInstall = ''
+    wrapProgram "$out/bin/abstract" \
+      --set LD_LIBRARY_PATH "${libGL}/lib:${libGL}/lib:${xorg.libX11}/lib"
+  '';
 
   doCheck = false;
 }
