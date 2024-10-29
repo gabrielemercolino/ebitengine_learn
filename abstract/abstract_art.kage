@@ -1,0 +1,38 @@
+//kage:unit pixels
+package main
+
+var Time float
+var Cursor vec2
+var Resolution vec2
+
+// www.iquilezles.org/articles/palettes
+// www.dev.thi.ng/gradients
+func palette(t float) vec3{
+	a := vec3(.5, .5, .5)
+	b := vec3(.5, .5, .5)
+	c := vec3(1., 1., 1.)
+	d := vec3(.263, .416, .557)
+
+	return a + b * cos( 6.28318 * (c*t + d) )
+}
+
+func Fragment(targetCoords vec4, sourceCoords vec2, color vec4) vec4 {
+	var uv vec2 = (targetCoords.xy * 2 - Resolution) / Resolution.y
+	var uv0 vec2 = uv
+	var finalColor = vec3(0.)
+	
+	for i := 0.; i < 4.; i++ {
+		// spatial repetition
+		uv = fract(uv * 1.5) - .5
+		var d float = length(uv) * exp(-length(uv0))
+		var col vec3 = palette(length(uv0) + Time*.4 + i*.4)
+
+		d = sin(d * 8 + Time) / 8
+		d = abs(d)
+		d = pow(.01 / d, 1.2)
+
+		finalColor += col * d
+	}
+
+	return vec4(finalColor, 1)
+}
