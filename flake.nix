@@ -7,7 +7,8 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        myGoApp = pkgs.callPackage ./package.nix { };
+        abstractApp = pkgs.callPackage ./abstract.nix { };
+        fractalApp = pkgs.callPackage ./fractal.nix { };
       in {
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
@@ -29,10 +30,19 @@
           '';
         };
 
-        packages.abstract = myGoApp;
-        apps.${system}.abstract = {
-          type = "app";
-          package = self.packages.${system}.abstract;
+        packages.abstract = abstractApp;
+        packages.fractal = fractalApp;
+
+        apps.${system} = {
+          abstract = {
+            type = "app";
+            package = self.packages.${system}.abstract;
+          };
+
+          fractal = {
+            type = "app";
+            package = self.packages.${system}.fractal;
+          };
         };
       });
 }
