@@ -9,11 +9,19 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-//go:embed mandelbrot.kage
-var mandelbrot []byte
+var (
+	//go:embed mandelbrot.kage
+	mandelbrot_fast []byte
+
+	//go:embed mandelbrot_double.kate
+	mandelbrot_deep []byte
+)
+
+var shaders []*ebiten.Shader
+
+var currentShader uint
 
 type Fractal struct {
-	shader        *ebiten.Shader
 	offset        [2]float32
 	iterations    float32
 	scalingFactor float32
@@ -56,7 +64,7 @@ func (g *Fractal) Update() error {
 }
 
 func (g *Fractal) Draw(screen *ebiten.Image) {
-	shader := g.shader
+	shader := shaders[currentShader]
 
 	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
 	cx, cy := ebiten.CursorPosition()
@@ -81,14 +89,23 @@ func (g *Fractal) Layout(_, _ int) (int, int) {
 	return ebiten.WindowSize()
 }
 
-func Run() {
-	// compile the shader
-	shader, err := ebiten.NewShader(mandelbrot)
+func loadShader(shaderData []byte) *ebiten.Shader {
+	shader, err := ebiten.NewShader(shaderData)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	game := &Fractal{shader: shader, iterations: 100, scalingFactor: 1}
+	return shader
+}
+
+func Run() {
+	// compile the shaders
+	shaders[0] = loadShader(mandelbrot_fast)
+	shaders[1] = loadShader(mandelbrot_deep)
+
+	currentShader = 0
+
+	game := &Fractal{iterations: 100, scalingFactor: 1}
 
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("Shader test")

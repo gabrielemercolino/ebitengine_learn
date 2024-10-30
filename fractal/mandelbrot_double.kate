@@ -1,0 +1,43 @@
+//kage:unit pixels
+package main
+
+var Cursor vec2
+var Resolution vec2
+var Offset vec2
+var Iterations float
+var ScalingFactor float
+
+const MAX_ITERATIONS = 10000
+
+// www.iquilezles.org/articles/palettes
+// www.dev.thi.ng/gradients
+func palette(t float) vec3 {
+	a := vec3(.5, .5, .5)
+	b := vec3(.5, .5, .5)
+	c := vec3(1., 1., 1.)
+	d := vec3(.263, .416, .557)
+
+	return a + b * cos( 8.28318 * (c*t + d) )
+}
+
+func mandelbrot(c vec2, iteration float) float {
+	var z vec2 = c
+	for i := 0.; i < MAX_ITERATIONS; i++ {
+		z = vec2(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c
+		if dot(z, z) > 4 {
+			return i/100.
+		}
+		if i >= iteration{
+			return 0.
+		}
+	}
+
+	return 0.
+}
+
+func Fragment(targetCoords vec4, sourceCoords vec2, color vec4) vec4 {
+	var uv vec2 = (targetCoords.xy * 2 - Resolution) / Resolution.y
+	var finalColor = palette(mandelbrot(ScalingFactor * uv - Offset, Iterations))
+
+	return vec4(finalColor, 1)
+}
