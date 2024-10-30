@@ -1,6 +1,6 @@
 package main
 
-import "ebitengine_learn/abstract"
+import "github.com/gabrielemercolino/ebitengine_learn/abstract"
 
 func main() {
 	abstract.Run()

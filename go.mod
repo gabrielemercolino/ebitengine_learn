@@ -1,4 +1,4 @@
-module ebitengine_learn
+module github.com/gabrielemercolino/ebitengine_learn
 
 go 1.23.2
 

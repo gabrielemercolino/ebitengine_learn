@@ -1,6 +1,6 @@
 package main
 
-import "ebitengine_learn/fractal"
+import "github.com/gabrielemercolino/ebitengine_learn/fractal"
 
 func main() {
 	fractal.Run()
