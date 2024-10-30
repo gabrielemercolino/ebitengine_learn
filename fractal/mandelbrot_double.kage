@@ -47,10 +47,10 @@ func Fragment(targetCoords vec4, sourceCoords vec2, color vec4) vec4 {
     var iterations float = mandelbrot_perturbation(c, dc, Iterations)
     var colorResult vec3 = palette(iterations)
 
-    var crossThickness float = 0.005  // Regola lo spessore del puntatore
-    var visibilityRadius float = 0.1
+    var crossThickness float = 0.002
+    var visibilityRadius float = 0.01
     if length(uv) < visibilityRadius && (abs(uv.x) < crossThickness || abs(uv.y) < crossThickness) {
-        colorResult = vec3(1.0, 1.0, 1.0) // Colore bianco per il puntatore
+        colorResult = vec3(1.0, 1.0, 1.0)
     }
 
     return vec4(colorResult, 1.0)
