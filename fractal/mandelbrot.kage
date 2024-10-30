@@ -39,5 +39,11 @@ func Fragment(targetCoords vec4, sourceCoords vec2, color vec4) vec4 {
 	var uv vec2 = (targetCoords.xy * 2 - Resolution) / Resolution.y
 	var finalColor = palette(mandelbrot(ScalingFactor * uv - Offset, Iterations))
 
+	var crossThickness float = 0.002
+  var visibilityRadius float = 0.01
+  if length(uv) < visibilityRadius && (abs(uv.x) < crossThickness || abs(uv.y) < crossThickness) {
+      finalColor = vec3(1.0, 1.0, 1.0)
+  }
+	
 	return vec4(finalColor, 1)
 }
