@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 var (
@@ -17,29 +18,38 @@ var (
 	mandelbrot_deep []byte
 )
 
-var shaders []*ebiten.Shader
+var shaders [2]*ebiten.Shader
 
 var currentShader uint
 
 type Fractal struct {
-	offset        [2]float32
+	offset        [2]float64
 	iterations    float32
-	scalingFactor float32
+	scalingFactor float64
 }
 
 func (g *Fractal) Update() error {
 	// movement
-	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		g.offset[0] += .01 * g.scalingFactor
+	// move only if current shader is the fast one
+	if currentShader == 0 {
+		if ebiten.IsKeyPressed(ebiten.KeyA) {
+			g.offset[0] += .01 * g.scalingFactor
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyD) {
+			g.offset[0] -= .01 * g.scalingFactor
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyW) {
+			g.offset[1] += .01 * g.scalingFactor
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyS) {
+			g.offset[1] -= .01 * g.scalingFactor
+		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyD) {
-		g.offset[0] -= .01 * g.scalingFactor
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		g.offset[1] += .01 * g.scalingFactor
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		g.offset[1] -= .01 * g.scalingFactor
+
+	// toggle between shaders
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+		currentShader++
+		currentShader %= 2
 	}
 
 	// scaling
@@ -69,13 +79,17 @@ func (g *Fractal) Draw(screen *ebiten.Image) {
 	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
 	cx, cy := ebiten.CursorPosition()
 
+	offset := [2]float32{}
+	offset[0] = float32(g.offset[0])
+	offset[1] = float32(g.offset[1])
+
 	op := &ebiten.DrawRectShaderOptions{}
 	op.Uniforms = map[string]any{
 		"Cursor":        []float32{float32(cx), float32(cy)},
 		"Resolution":    []float32{float32(w), float32(h)},
-		"Offset":        g.offset,
+		"Offset":        offset,
 		"Iterations":    g.iterations,
-		"ScalingFactor": g.scalingFactor,
+		"ScalingFactor": float32(g.scalingFactor),
 	}
 
 	screen.DrawRectShader(w, h, shader, op)

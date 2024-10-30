@@ -1,13 +1,16 @@
 //kage:unit pixels
 package main
 
-var Cursor vec2
 var Resolution vec2
 var Offset vec2
-var Iterations float
 var ScalingFactor float
+var Iterations float
 
-const MAX_ITERATIONS = 10000
+const MAX_ITERATIONS = 10000.
+
+func cmul(a, b vec2) vec2 {
+    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
+}
 
 // www.iquilezles.org/articles/palettes
 // www.dev.thi.ng/gradients
@@ -20,24 +23,35 @@ func palette(t float) vec3 {
 	return a + b * cos( 8.28318 * (c*t + d) )
 }
 
-func mandelbrot(c vec2, iteration float) float {
-	var z vec2 = c
-	for i := 0.; i < MAX_ITERATIONS; i++ {
-		z = vec2(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c
-		if dot(z, z) > 4 {
-			return i/100.
-		}
-		if i >= iteration{
-			return 0.
-		}
-	}
 
-	return 0.
+func mandelbrot_perturbation(c, dc vec2, iterations float) float {
+    var z vec2 = vec2(0.0)
+    var dz vec2 = vec2(0.0)
+    for i := 0.; i < MAX_ITERATIONS; i++ {
+        dz = cmul(2.0*z + dz, dz) + dc
+        z = cmul(z, z) + c
+        if dot(dz, dz) > 4.0 {
+            return i / iterations
+        }
+        if i >= iterations{
+		    	return 0.
+    		}
+    }
+    return 0.0
 }
 
 func Fragment(targetCoords vec4, sourceCoords vec2, color vec4) vec4 {
-	var uv vec2 = (targetCoords.xy * 2 - Resolution) / Resolution.y
-	var finalColor = palette(mandelbrot(ScalingFactor * uv - Offset, Iterations))
+    var uv vec2 = (targetCoords.xy * 2.0 - Resolution) / Resolution.y
+    var c vec2 = -Offset
+    var dc vec2 = uv * ScalingFactor
+    var iterations float = mandelbrot_perturbation(c, dc, Iterations)
+    var colorResult vec3 = palette(iterations)
 
-	return vec4(finalColor, 1)
+    var crossThickness float = 0.005  // Regola lo spessore del puntatore
+    var visibilityRadius float = 0.1
+    if length(uv) < visibilityRadius && (abs(uv.x) < crossThickness || abs(uv.y) < crossThickness) {
+        colorResult = vec3(1.0, 1.0, 1.0) // Colore bianco per il puntatore
+    }
+
+    return vec4(colorResult, 1.0)
 }
