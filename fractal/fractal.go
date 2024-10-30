@@ -14,7 +14,7 @@ var (
 	//go:embed mandelbrot.kage
 	mandelbrot_fast []byte
 
-	//go:embed mandelbrot_double.kate
+	//go:embed mandelbrot_double.kage
 	mandelbrot_deep []byte
 )
 
@@ -30,20 +30,17 @@ type Fractal struct {
 
 func (g *Fractal) Update() error {
 	// movement
-	// move only if current shader is the fast one
-	if currentShader == 0 {
-		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			g.offset[0] += .01 * g.scalingFactor
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			g.offset[0] -= .01 * g.scalingFactor
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyW) {
-			g.offset[1] += .01 * g.scalingFactor
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyS) {
-			g.offset[1] -= .01 * g.scalingFactor
-		}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		g.offset[0] += .01 * g.scalingFactor
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		g.offset[0] -= .01 * g.scalingFactor
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		g.offset[1] += .01 * g.scalingFactor
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		g.offset[1] -= .01 * g.scalingFactor
 	}
 
 	// toggle between shaders
@@ -93,9 +90,13 @@ func (g *Fractal) Draw(screen *ebiten.Image) {
 	}
 
 	screen.DrawRectShader(w, h, shader, op)
+	versionMsg := "normal"
+	if currentShader == 1 {
+		versionMsg = "high res"
+	}
 	msg := fmt.Sprintf(
-		"TPS: %.0f\nFPS: %.0f\nOffset[ WASD ]: %.2f:%.2f\nIterations[ UP | DOWN ]: %.0f\nScaling factor[ ALT | SPACE ]: %.5f",
-		ebiten.ActualTPS(), ebiten.ActualFPS(), g.offset[0], g.offset[1], g.iterations, g.scalingFactor)
+		"TPS: %.0f\nFPS: %.0f\nVersion: %s\nOffset[ WASD ]: %.2f:%.2f\nIterations[ UP | DOWN ]: %.0f\nScaling factor[ ALT | SPACE ]: %.5f",
+		ebiten.ActualTPS(), ebiten.ActualFPS(), versionMsg, g.offset[0], g.offset[1], g.iterations, g.scalingFactor)
 	ebitenutil.DebugPrint(screen, msg)
 }
 
