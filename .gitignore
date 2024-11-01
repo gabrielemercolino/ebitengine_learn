@@ -4,3 +4,4 @@ cmd/manu
 # nix stuff
 .direnv
 .envrc
+result
