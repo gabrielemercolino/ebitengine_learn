@@ -30,9 +30,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libglfw3-dev libx11-dev libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev libxxf86vm-dev
 
-      - name: Build
-        run: |
-          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o myapp-${{ matrix.os }}-${{ matrix.arch }} ./cmd/fractal
+      - name: Build Linux Executable
+        if: matrix.os == 'ubuntu-latest'
+        run: GOOS=linux GOARCH=${{ matrix.arch }} go build -o myapp-linux-amd64 ./cmd/fractal
+
+      - name: Build Windows Executable
+        if: matrix.os == 'windows-latest'
+        run: GOOS=windows GOARCH=${{ matrix.arch }} go build -o myapp-windows-amd64.exe ./cmd/fractal
+
 
       - name: List generated files
         run: ls -l
