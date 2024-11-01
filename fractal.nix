@@ -33,6 +33,10 @@ buildGoModule rec {
     makeWrapper
   ];
 
+  ldflags = [
+    "-s" # stripped
+  ];
+
   postInstall = ''
     wrapProgram "$out/bin/${pname}" \
       --set LD_LIBRARY_PATH "${libGL}/lib:${libGL}/lib:${xorg.libX11}/lib"
@@ -40,4 +44,3 @@ buildGoModule rec {
 
   doCheck = false;
 }
-
