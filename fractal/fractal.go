@@ -18,13 +18,19 @@ var (
 	mandelbrot_deep []byte
 )
 
-var shaders [2]*ebiten.Shader
+type Shader struct {
+	name   string
+	shader *ebiten.Shader
+}
 
-var currentShader uint
+var (
+	shaders       map[int]Shader
+	currentShader int
+)
 
 type Fractal struct {
 	offset        [2]float64
-	iterations    float32
+	iterations    uint64
 	scalingFactor float64
 }
 
@@ -46,7 +52,7 @@ func (g *Fractal) Update() error {
 	// toggle between shaders
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
 		currentShader++
-		currentShader %= 2
+		currentShader %= len(shaders)
 	}
 
 	// scaling
@@ -71,33 +77,38 @@ func (g *Fractal) Update() error {
 }
 
 func (g *Fractal) Draw(screen *ebiten.Image) {
+	g.drawFractal(screen)
+
+	// debug info
+	{
+		shader := shaders[currentShader]
+
+		versionMsg := shader.name
+
+		msg := fmt.Sprintf(
+			"TPS: %.0f\nFPS: %.0f\nVersion: %s\nOffset[ WASD ]: %.2f:%.2f\nIterations[ UP | DOWN ]: %d\nScaling factor[ ALT | SPACE ]: %.5f",
+			ebiten.ActualTPS(), ebiten.ActualFPS(), versionMsg, g.offset[0], g.offset[1], g.iterations, g.scalingFactor)
+
+		ebitenutil.DebugPrint(screen, msg)
+	}
+}
+
+func (g *Fractal) drawFractal(screen *ebiten.Image) {
 	shader := shaders[currentShader]
 
 	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
 	cx, cy := ebiten.CursorPosition()
 
-	offset := [2]float32{}
-	offset[0] = float32(g.offset[0])
-	offset[1] = float32(g.offset[1])
-
-	op := &ebiten.DrawRectShaderOptions{}
-	op.Uniforms = map[string]any{
-		"Cursor":        []float32{float32(cx), float32(cy)},
-		"Resolution":    []float32{float32(w), float32(h)},
-		"Offset":        offset,
-		"Iterations":    g.iterations,
-		"ScalingFactor": float32(g.scalingFactor),
+	op := &ebiten.DrawRectShaderOptions{
+		Uniforms: map[string]any{
+			"Cursor":        []float32{float32(cx), float32(cy)},
+			"Resolution":    []float32{float32(w), float32(h)},
+			"Offset":        [2]float32{float32(g.offset[0]), float32(g.offset[1])},
+			"Iterations":    float32(g.iterations),
+			"ScalingFactor": float32(g.scalingFactor),
+		},
 	}
-
-	screen.DrawRectShader(w, h, shader, op)
-	versionMsg := "normal"
-	if currentShader == 1 {
-		versionMsg = "high res"
-	}
-	msg := fmt.Sprintf(
-		"TPS: %.0f\nFPS: %.0f\nVersion: %s\nOffset[ WASD ]: %.2f:%.2f\nIterations[ UP | DOWN ]: %.0f\nScaling factor[ ALT | SPACE ]: %.5f",
-		ebiten.ActualTPS(), ebiten.ActualFPS(), versionMsg, g.offset[0], g.offset[1], g.iterations, g.scalingFactor)
-	ebitenutil.DebugPrint(screen, msg)
+	screen.DrawRectShader(w, h, shader.shader, op)
 }
 
 func (g *Fractal) Layout(_, _ int) (int, int) {
@@ -115,8 +126,10 @@ func loadShader(shaderData []byte) *ebiten.Shader {
 
 func Run() {
 	// compile the shaders
-	shaders[0] = loadShader(mandelbrot_fast)
-	shaders[1] = loadShader(mandelbrot_deep)
+	shaders = map[int]Shader{
+		0: Shader{name: "normal", shader: loadShader(mandelbrot_fast)},
+		1: Shader{name: "high res", shader: loadShader(mandelbrot_deep)},
+	}
 
 	currentShader = 0
 
