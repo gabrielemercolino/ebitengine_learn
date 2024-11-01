@@ -124,7 +124,6 @@ func loadShader(shaderData []byte) *ebiten.Shader {
 }
 
 func Run() {
-	// compile the shaders
 	shaders = map[int]Shader{
 		0: Shader{name: "normal", shader: loadShader(mandelbrot_fast)},
 		1: Shader{name: "high res", shader: loadShader(mandelbrot_deep)},
