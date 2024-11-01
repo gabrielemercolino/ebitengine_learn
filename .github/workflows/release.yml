@@ -37,11 +37,12 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
           files: |
             myapp-linux-amd64
             myapp-windows-amd64.exe
-            myapp-darwin-amd64
+          body: |
+            Release of version ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
