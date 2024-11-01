@@ -34,10 +34,13 @@ jobs:
         run: |
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o myapp-${{ matrix.os }}-${{ matrix.arch }} ./cmd/fractal
 
+      - name: List generated files
+        run: ls -l
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
           files: |
             myapp-linux-amd64
             myapp-windows-amd64.exe
