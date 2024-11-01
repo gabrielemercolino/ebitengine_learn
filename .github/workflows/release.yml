@@ -32,11 +32,11 @@ jobs:
 
       - name: Build Linux Executable
         if: matrix.os == 'ubuntu-latest'
-        run: GOOS=linux GOARCH=${{ matrix.arch }} go build -o myapp-linux-amd64 ./cmd/fractal
+        run: GOOS=linux GOARCH=${{ matrix.arch }} go build -o fractal-navigator ./cmd/fractal
 
       - name: Build Windows Executable
         if: matrix.os == 'windows-latest'
-        run: GOOS=windows GOARCH=${{ matrix.arch }} go build -o myapp-windows-amd64.exe ./cmd/fractal
+        run: GOOS=windows GOARCH=${{ matrix.arch }} go build -o fractal-navigator.exe ./cmd/fractal
 
 
       - name: List generated files
@@ -47,8 +47,8 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            myapp-linux-amd64
-            myapp-windows-amd64.exe
+            fractal-navigator
+            fractal-navigator.exe
           body: |
             Release of version ${{ github.ref }}
         env:
