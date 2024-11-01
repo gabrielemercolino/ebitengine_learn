@@ -79,7 +79,6 @@ func (g *Fractal) Update() error {
 func (g *Fractal) Draw(screen *ebiten.Image) {
 	g.drawFractal(screen)
 
-	// debug info
 	{
 		shader := shaders[currentShader]
 
