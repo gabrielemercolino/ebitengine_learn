@@ -1,13 +1,19 @@
 //kage:unit pixels
 package main
 
-var Cursor vec2
-var Resolution vec2
-var Offset vec2
-var Iterations float
-var ScalingFactor float
+var (
+  Cursor        vec2
+  Resolution    vec2
+  Offset        vec2
+  Iterations    float
+  ScalingFactor float
+)
 
 const MAX_ITERATIONS = 10000
+
+func cmul(a, b vec2) vec2 {
+  return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x)
+}
 
 // www.iquilezles.org/articles/palettes
 // www.dev.thi.ng/gradients
@@ -20,15 +26,17 @@ func palette(t float) vec3 {
 	return a + b * cos( 8.28318 * (c*t + d) )
 }
 
-func mandelbrot(c vec2, iteration float) float {
-	var z vec2 = c
+func mandelbrot(c vec2, iterations float) float {
+	z := c
 	for i := 0.; i < MAX_ITERATIONS; i++ {
-		z = vec2(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c
-		if dot(z, z) > 4 {
-			return i/100.
-		}
-		if i >= iteration{
+    if i >= iterations {
 			return 0.
+		}
+
+		z = cmul(z, z) + c
+
+		if dot(z, z) > 4 {
+			return i / iterations
 		}
 	}
 
@@ -36,14 +44,15 @@ func mandelbrot(c vec2, iteration float) float {
 }
 
 func Fragment(targetCoords vec4, sourceCoords vec2, color vec4) vec4 {
-	var uv vec2 = (targetCoords.xy * 2 - Resolution) / Resolution.y
-	var finalColor = palette(mandelbrot(ScalingFactor * uv - Offset, Iterations))
+	uv := (targetCoords.xy * 2 - Resolution) / Resolution.y
+  c := uv * ScalingFactor
+	finalColor := palette(mandelbrot(c - Offset, Iterations))
 
 	var crossThickness float = 0.002
   var visibilityRadius float = 0.01
   if length(uv) < visibilityRadius && (abs(uv.x) < crossThickness || abs(uv.y) < crossThickness) {
       finalColor = vec3(1.0, 1.0, 1.0)
   }
-	
+
 	return vec4(finalColor, 1)
 }
