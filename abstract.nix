@@ -40,4 +40,3 @@ buildGoModule {
 
   doCheck = false;
 }
-
