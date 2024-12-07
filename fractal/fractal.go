@@ -85,7 +85,7 @@ func (g *Fractal) Draw(screen *ebiten.Image) {
 		versionMsg := shader.name
 
 		msg := fmt.Sprintf(
-			"TPS: %.0f\nFPS: %.0f\nVersion: %s\nOffset[ WASD ]: %.2f:%.2f\nIterations[ UP | DOWN ]: %d\nScaling factor[ ALT | SPACE ]: %.5f",
+			"TPS: %.0f\nFPS: %.0f\nVersion: %s\nOffset[ WASD ]: %.2f:%.2f\nIterations[ UP | DOWN ]: %d\nScaling factor[ ALT | SPACE ]: %f",
 			ebiten.ActualTPS(), ebiten.ActualFPS(), versionMsg, g.offset[0], g.offset[1], g.iterations, g.scalingFactor)
 
 		ebitenutil.DebugPrint(screen, msg)
